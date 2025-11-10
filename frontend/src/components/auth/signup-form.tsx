@@ -8,6 +8,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } 
 import { Input } from '@/components/ui/input';
 import { Lock, Mail, Phone, User } from 'lucide-react';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -41,12 +42,55 @@ export function SignUpForm() {
     },
   });
 
+  const { toast } = useToast();
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-    console.log(values);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSubmitting(false);
+    try {
+      setIsSubmitting(true);
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: values.name,
+          phone: values.phone,
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create account');
+      }
+
+      // Save token to localStorage
+      localStorage.setItem('token', data.token);
+      
+      // Show success toast
+      toast({
+        title: "Account created!",
+        description: "You have successfully created your account.",
+        variant: "default",
+      });
+
+      // Redirect to dashboard or home page after a short delay
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+    } catch (error) {
+      console.error('Registration failed:', error);
+      // Show error toast
+      toast({
+        title: "Registration failed",
+        description: error instanceof Error ? error.message : 'Failed to create account',
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
