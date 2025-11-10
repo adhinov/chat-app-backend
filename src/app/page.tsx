@@ -5,10 +5,10 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-4 antialiased">
-      <Card className="w-full max-w-sm rounded-2xl border-none shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+      <Card className="w-full max-w-sm rounded-2xl border-none shadow-[0_4px_15px_rgb(0,0,0,0.08)]">
         <CardHeader className="space-y-2 text-center">
           <h1 className="text-3xl font-bold font-headline text-foreground">Login</h1>
-          <p className="text-muted-foreground">Welcome back! Please enter your details.</p>
+          <p className="text-muted-foreground">Enter your details</p>
         </CardHeader>
         <CardContent>
           <LoginForm />
