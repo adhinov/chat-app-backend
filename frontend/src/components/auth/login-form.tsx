@@ -6,15 +6,16 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Lock, Phone } from 'lucide-react';
+import { Lock, Phone, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   phone: z.string().min(1, {
-    message: 'Phone number is required.',
-  }).min(10, {
-    message: 'Phone number must be at least 10 characters.',
+    message: 'Phone number or email is required.',
+  }).min(3, {
+    message: 'Please enter a valid phone number or email.',
   }),
   password: z.string().min(1, {
     message: 'Password is required.'
@@ -25,6 +26,8 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -35,11 +38,38 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-    console.log(values);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSubmitting(false);
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: values.phone,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || data?.message || 'Login failed');
+      }
+
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
+        toast({ title: 'Success', description: 'Logged in successfully!' });
+        window.location.href = '/dashboard';
+      }
+    } catch (err: any) {
+      toast({ 
+        title: 'Error', 
+        description: err?.message || 'Login failed', 
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -54,7 +84,7 @@ export function LoginForm() {
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <FormControl>
                   <Input 
-                    placeholder="Phone Number" 
+                    placeholder="Phone Number or Email" 
                     {...field} 
                     className="h-12 pl-10 transition-shadow duration-300 focus:shadow-sm" 
                   />
@@ -73,19 +103,30 @@ export function LoginForm() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <FormControl>
                   <Input 
-                    type="password" 
+                    type={showPassword ? "text" : "password"}
                     placeholder="Password" 
                     {...field} 
-                    className="h-12 pl-10 transition-shadow duration-300 focus:shadow-sm" 
+                    className="h-12 pl-10 pr-10 transition-shadow duration-300 focus:shadow-sm" 
                   />
                 </FormControl>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
               <FormMessage />
             </FormItem>
           )}
         />
         <div className="flex justify-end !mt-2">
-            <Link href="/forgot-password" className="text-sm font-medium text-accent hover:underline underline-offset-4">
+            <Link href="/forgot-password" className="text-xs text-accent hover:underline underline-offset-4">
                 Forgot password?
             </Link>
         </div>

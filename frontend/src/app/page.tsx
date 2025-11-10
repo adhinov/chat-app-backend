@@ -1,10 +1,11 @@
 import { LoginForm } from '@/components/auth/login-form';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import Link from 'next/link';
+import { LayoutWithBg } from './layout-with-bg';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background p-4 antialiased">
+    <LayoutWithBg>
       <Card className="w-full max-w-xs rounded-2xl border-none shadow-[0_4px_15px_rgb(0,0,0,0.08)]">
         <CardHeader className="space-y-2 text-center">
           <h1 className="text-3xl font-bold font-headline text-foreground">Login</h1>
@@ -14,12 +15,12 @@ export default function Home() {
           <LoginForm />
         </CardContent>
         <CardFooter className="flex justify-center text-sm">
-           <p className="text-muted-foreground">Don&apos;t have an account?&nbsp;</p>
-            <Link href="/signup" className="font-semibold text-accent underline-offset-4 hover:underline">
-              Sign up
-            </Link>
+          <p className="text-muted-foreground">Don&apos;t have an account?&nbsp;</p>
+          <Link href="/signup" className="font-semibold text-accent underline-offset-4 hover:underline">
+            Sign up
+          </Link>
         </CardFooter>
       </Card>
-    </main>
+    </LayoutWithBg>
   );
 }
