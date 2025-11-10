@@ -1,3 +1,25 @@
+import { LoginForm } from '@/components/auth/login-form';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import Link from 'next/link';
+
 export default function Home() {
-  return <></>;
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-background p-4 antialiased">
+      <Card className="w-full max-w-sm rounded-2xl border-none shadow-2xl">
+        <CardHeader className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold font-headline text-foreground">Gemini Chat</h1>
+          <p className="text-muted-foreground">Welcome back! Please enter your details.</p>
+        </CardHeader>
+        <CardContent>
+          <LoginForm />
+        </CardContent>
+        <CardFooter className="flex justify-center text-sm">
+           <p className="text-muted-foreground">Don&apos;t have an account?&nbsp;</p>
+            <Link href="/signup" className="font-semibold text-accent underline-offset-4 hover:underline">
+              Sign up
+            </Link>
+        </CardFooter>
+      </Card>
+    </main>
+  );
 }
