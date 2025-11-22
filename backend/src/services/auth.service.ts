@@ -6,11 +6,12 @@ const JWT_SECRET: Secret = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const JWT_EXPIRE = process.env.JWT_EXPIRE || '24h';
 
 export class AuthService {
-  static generateToken(user: { id: number; username?: string; phone?: string; email?: string }): string {
+  static generateToken(user: { id: number; username?: string; phone?: string; email?: string; role?: string }): string {
     const payload: any = { id: user.id };
     if (user.username) payload.username = user.username;
     if (user.phone) payload.phone = user.phone;
     if (user.email) payload.email = user.email;
+    if (user.role) payload.role = user.role;
     // Use `any` casts to avoid mismatched type overloads from @types/jsonwebtoken
     return jwt.sign(payload as any, JWT_SECRET as any, { expiresIn: JWT_EXPIRE } as any);
   }
@@ -37,7 +38,8 @@ export class AuthService {
       id: user.id,
       username: user.username, // Add username to token
       phone: user.phone,
-      email: user.email
+      email: user.email,
+      role: user.role
     });
 
     return {

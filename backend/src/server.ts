@@ -19,9 +19,11 @@ connectDB();
 
 // Import routes
 import authRoutes from './routes/auth.routes';
+import adminRoutes from './routes/admin.routes';
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

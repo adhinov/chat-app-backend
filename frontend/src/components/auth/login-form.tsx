@@ -10,6 +10,13 @@ import { Lock, Phone, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
+
+// Definisikan tipe untuk payload JWT
+interface JwtPayload {
+    role: string;
+}
 
 const formSchema = z.object({
   phone: z.string().min(1, {
@@ -28,6 +35,7 @@ export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
+  const router = useRouter(); 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,8 +66,19 @@ export function LoginForm() {
 
       if (data?.token) {
         localStorage.setItem('token', data.token);
+        
+        const decoded = jwtDecode<JwtPayload>(data.token);
+        const userRole = decoded.role;
+        
         toast({ title: 'Success', description: 'Logged in successfully!' });
-        window.location.href = '/dashboard';
+
+        // --- LOGIKA REDIRECT BERBASIS ROLE YANG DIREVISI ---
+        if (userRole === 'admin') {
+          router.push('/admin-dashboard'); // Navigasi ke path /admin-dashboard
+        } else {
+          router.push('/dashboard');      // Navigasi ke path /dashboard
+        }
+        // --- END REVISI ---
       }
     } catch (err: any) {
       toast({ 
@@ -75,6 +94,7 @@ export function LoginForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Field Phone */}
         <FormField
           control={form.control}
           name="phone"
@@ -94,6 +114,7 @@ export function LoginForm() {
             </FormItem>
           )}
         />
+        {/* Field Password */}
         <FormField
           control={form.control}
           name="password"
