@@ -80,45 +80,43 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    // 1. BACKGROUND MEDIUM GREY (bg-gray-300)
-    <div className="min-h-screen bg-gray-300 py-10 px-4 flex justify-center items-start">
+    <div className="min-h-screen bg-gray-300 py-6 px-4 flex justify-center items-start">
       
       {/* Container Card */}
-      <div className="w-full max-w-5xl bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
+      <div className="w-full max-w-5xl bg-white rounded-lg shadow-xl overflow-hidden border border-gray-300">
         
-        {/* Header Card */}
-        <div className="px-6 py-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50/80">
+        {/* Header Card (Compact) */}
+        <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Last Login: {lastLogin} WIB
+            <h1 className="text-xl font-bold text-gray-800">Admin Dashboard</h1>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Login: {lastLogin}
             </p>
           </div>
-          <Button onClick={handleLogout} variant="destructive" size="sm" className="w-full sm:w-auto">
+          <Button onClick={handleLogout} variant="destructive" size="sm" className="h-8 px-4 text-xs">
             Logout
           </Button>
         </div>
 
         {/* Body Card */}
-        <div className="p-6">
-          {/* Bagian Search & Judul Data */}
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-            <h2 className="text-lg font-semibold text-gray-700">
-              Data Pengguna <span className="text-sm font-normal text-gray-500">({filteredUsers.length} users)</span>
+        <div className="p-4">
+          {/* Search Bar & Title */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
+            <h2 className="text-base font-semibold text-gray-700">
+              List Users <span className="text-xs font-normal text-gray-500">({filteredUsers.length})</span>
             </h2>
             
             <div className="flex w-full sm:w-auto gap-2">
               <input
                 type="text"
                 placeholder="Cari user..."
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all"
+                className="px-3 py-1.5 border border-gray-300 rounded text-sm w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              {/* 2. TOMBOL REFRESH BIRU (bg-blue-600 text-white) */}
               <Button 
                 onClick={fetchUsers} 
-                className="bg-blue-600 hover:bg-blue-700 text-white border-none"
+                className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs"
                 size="sm"
               >
                 Refresh
@@ -126,42 +124,43 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* Tabel Wrapper */}
-          <div className="rounded-lg border border-gray-200 overflow-hidden">
+          {/* Tabel Wrapper (Bordered) */}
+          <div className="border border-gray-200 rounded-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                {/* 3. TABLE HEADER COMPACT (px-3 py-2) - Tetap satu baris string */}
-                <thead className="bg-gray-800 text-white text-xs uppercase tracking-wider"><tr><th className="px-3 py-2 text-left font-medium">ID</th><th className="px-3 py-2 text-left font-medium">Email</th><th className="px-3 py-2 text-left font-medium">Username</th><th className="px-3 py-2 text-left font-medium">Role</th><th className="px-3 py-2 text-left font-medium">Created At</th><th className="px-3 py-2 text-left font-medium">Phone</th></tr></thead>
+                {/* HEADER: py-2, text-xs. One-Liner untuk menghindari Hydration Error */}
+                <thead className="bg-gray-800 text-white text-xs uppercase tracking-wider"><tr><th className="px-3 py-2 text-left font-semibold w-12">ID</th><th className="px-3 py-2 text-left font-semibold">Email</th><th className="px-3 py-2 text-left font-semibold">Username</th><th className="px-3 py-2 text-left font-semibold w-24">Role</th><th className="px-3 py-2 text-left font-semibold">Created At</th><th className="px-3 py-2 text-left font-semibold">Phone</th></tr></thead>
                 
-                <tbody className="text-sm divide-y divide-gray-100 bg-white">
+                <tbody className="text-sm divide-y divide-gray-200 bg-white">
                   {filteredUsers.length > 0 ? (
                     filteredUsers.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                        {/* 4. TABLE BODY COMPACT (px-3 py-2) - Font tetap standar, padding dikurangi */}
-                        <td className="px-3 py-2 text-gray-600 font-medium">{user.id}</td>
-                        <td className="px-3 py-2 text-gray-600">{user.email}</td>
-                        <td className="px-3 py-2 font-medium text-gray-900">{user.username}</td>
-                        <td className="px-3 py-2">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${
+                      <tr key={user.id} className="hover:bg-blue-50 transition-colors">
+                        {/* DATA CELLS: py-1 (Sangat Rapat), whitespace-nowrap (Satu Baris) */}
+                        <td className="px-3 py-1 text-gray-600 font-medium whitespace-nowrap">{user.id}</td>
+                        <td className="px-3 py-1 text-gray-700 whitespace-nowrap">{user.email}</td>
+                        <td className="px-3 py-1 font-medium text-gray-900 whitespace-nowrap">{user.username}</td>
+                        <td className="px-3 py-1 whitespace-nowrap">
+                          {/* Badge Role juga diperkecil */}
+                          <span className={`px-1.5 py-[1px] rounded text-[10px] font-bold uppercase ${
                             user.role === 'admin' 
-                              ? 'bg-red-100 text-red-700 border border-red-200' 
-                              : 'bg-green-100 text-green-700 border border-green-200'
+                              ? 'bg-red-500 text-white' 
+                              : 'bg-green-500 text-white'
                           }`}>
-                            {user.role.toUpperCase()}
+                            {user.role}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-gray-500 text-xs">
+                        <td className="px-3 py-1 text-gray-500 text-xs whitespace-nowrap">
                           {new Date(user.createdAt).toLocaleString('id-ID', {
-                            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                            day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
                           })}
                         </td>
-                        <td className="px-3 py-2 text-gray-500">{user.phone || '-'}</td>
+                        <td className="px-3 py-1 text-gray-600 whitespace-nowrap">{user.phone || '-'}</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
                       <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
-                        Tidak ada data pengguna ditemukan.
+                        Data tidak ditemukan.
                       </td>
                     </tr>
                   )}
