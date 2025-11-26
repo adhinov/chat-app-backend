@@ -13,29 +13,32 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 
-// Definisikan tipe untuk payload JWT
+// JWT payload type
 interface JwtPayload {
-    role: string;
+  role: string;
 }
 
+// Form validation schema
 const formSchema = z.object({
-  phone: z.string().min(1, {
-    message: 'Phone number or email is required.',
-  }).min(3, {
-    message: 'Please enter a valid phone number or email.',
-  }),
-  password: z.string().min(1, {
-    message: 'Password is required.'
-  }).min(8, {
-    message: 'Password must be at least 8 characters.',
-  }),
+  phone: z
+    .string()
+    .min(1, { message: 'Phone number or email is required.' })
+    .min(3, { message: 'Please enter a valid phone number or email.' }),
+  password: z
+    .string()
+    .min(1, { message: 'Password is required.' })
+    .min(8, { message: 'Password must be at least 8 characters.' }),
 });
 
 export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
-  const router = useRouter(); 
+  const router = useRouter();
+
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://localhost:5000'; // fallback jika .env belum ada
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,7 +52,7 @@ export function LoginForm() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -64,27 +67,30 @@ export function LoginForm() {
         throw new Error(data?.error || data?.message || 'Login failed');
       }
 
+      // Token found → login success
       if (data?.token) {
         localStorage.setItem('token', data.token);
-        
+
         const decoded = jwtDecode<JwtPayload>(data.token);
         const userRole = decoded.role;
-        
-        toast({ title: 'Success', description: 'Logged in successfully!' });
 
-        // --- LOGIKA REDIRECT BERBASIS ROLE YANG DIREVISI ---
+        toast({
+          title: 'Success',
+          description: 'Logged in successfully!',
+        });
+
+        // Redirect based on role
         if (userRole === 'admin') {
-          router.push('/admin-dashboard'); // Navigasi ke path /admin-dashboard
+          router.push('/admin-dashboard');
         } else {
-          router.push('/dashboard');      // Navigasi ke path /dashboard
+          router.push('/dashboard');
         }
-        // --- END REVISI ---
       }
     } catch (err: any) {
-      toast({ 
-        title: 'Error', 
-        description: err?.message || 'Login failed', 
-        variant: 'destructive' 
+      toast({
+        title: 'Error',
+        description: err?.message || 'Login failed',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
@@ -94,7 +100,7 @@ export function LoginForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Field Phone */}
+        {/* Phone Field */}
         <FormField
           control={form.control}
           name="phone"
@@ -103,10 +109,10 @@ export function LoginForm() {
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <FormControl>
-                  <Input 
-                    placeholder="Phone Number or Email" 
-                    {...field} 
-                    className="h-12 pl-10 transition-shadow duration-300 focus:shadow-sm" 
+                  <Input
+                    placeholder="Phone Number or Email"
+                    {...field}
+                    className="h-12 pl-10 transition-shadow duration-300 focus:shadow-sm"
                   />
                 </FormControl>
               </div>
@@ -114,7 +120,8 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        {/* Field Password */}
+
+        {/* Password Field */}
         <FormField
           control={form.control}
           name="password"
@@ -123,13 +130,15 @@ export function LoginForm() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <FormControl>
-                  <Input 
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password" 
-                    {...field} 
-                    className="h-12 pl-10 pr-10 transition-shadow duration-300 focus:shadow-sm" 
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Password"
+                    {...field}
+                    className="h-12 pl-10 pr-10 transition-shadow duration-300 focus:shadow-sm"
                   />
                 </FormControl>
+
+                {/* Toggle password visibility */}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -146,12 +155,23 @@ export function LoginForm() {
             </FormItem>
           )}
         />
+
+        {/* Forgot Password */}
         <div className="flex justify-end !mt-2">
-            <Link href="/forgot-password" className="text-xs text-accent hover:underline underline-offset-4">
-                Forgot password?
-            </Link>
+          <Link
+            href="/forgot-password"
+            className="text-xs text-accent hover:underline underline-offset-4"
+          >
+            Forgot password?
+          </Link>
         </div>
-        <Button type="submit" className="w-full !mt-6 h-12 text-base font-semibold" disabled={isSubmitting}>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          className="w-full !mt-6 h-12 text-base font-semibold"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? 'Logging in...' : 'Login'}
         </Button>
       </form>
