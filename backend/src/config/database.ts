@@ -1,16 +1,29 @@
-import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
+import { PrismaClient } from "@prisma/client";
 
-dotenv.config();
+declare global {
+  // Tanpa index signature → PrismaClient atau undefined
+  // Tidak bikin TS error "any"
+  // Tidak merusak globalThis
+  var prismaGlobal: PrismaClient | undefined;
+}
 
-const prisma = new PrismaClient();
+let prisma: PrismaClient;
+
+if (process.env.NODE_ENV === "production") {
+  prisma = new PrismaClient();
+} else {
+  if (!global.prismaGlobal) {
+    global.prismaGlobal = new PrismaClient();
+  }
+  prisma = global.prismaGlobal;
+}
 
 export const connectDB = async () => {
   try {
     await prisma.$connect();
-    console.log('PostgreSQL database connected successfully');
+    console.log("PostgreSQL database connected successfully");
   } catch (error) {
-    console.error('Database connection error:', error);
+    console.error("Database connection error:", error);
     process.exit(1);
   }
 };
